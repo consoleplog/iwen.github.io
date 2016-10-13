@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import map from 'lodash/fp/map';
 import axios from 'axios';
 import {Link} from 'react-router';
+import Settings from '../../settings'
+import filter from 'lodash/fp/filter';
 
 export default class PostList extends Component {
   constructor() {
@@ -40,7 +42,9 @@ export default class PostList extends Component {
 
       },
       link:{
-        float:'right'
+        float:'right',
+        textDecoration:'none',
+        color:'red'
       }
     }
   }
@@ -48,9 +52,25 @@ export default class PostList extends Component {
   //   axios.delete(`http://localhost:3000/posts${id}`)
   //   // POST /posts according to REST api structrue
   // }
+  filterPosts(id){
+    alert(id);
+    var newPosts = filter((post) => {return post._id !== id }, this.state.posts);
+      this.setState({
+        posts: newPosts
+      })
+  }
+  handeleClick(id){
+    console.log('-handleClick');
+    axios.delete(`${Settings.host}/posts/${id}`).then( res => {
+      console.log(res.data.message)
+       // 筛除已经删除的这个 post
+       this.filterPosts(id)
+    })
+    console.log(id);
+  }
   componentWillMount() {
     //  Promise
-    axios.get('http://localhost:3000/posts').then(res => {
+    axios.get(`${Settings.host}/posts`).then(res => {
       this.setState({
         posts: res.data.posts
       });
@@ -63,6 +83,8 @@ export default class PostList extends Component {
         <div style={styles.content} key={post._id}>
           <div style={styles.title}>{post.category}{post.title}{post.content}</div>
           <Link to={`/post/${post._id}`} style={styles.link} >check</Link>
+          <Link to={`/posts/${post._id}/edit`} style={styles.link}>编辑</Link>
+          <Link to={``} style={styles.link} onClick={this.handeleClick.bind(this,post._id)}>delete</Link>
         </div>
       )
     }, this.state.posts);

@@ -63,6 +63,9 @@ app.post('/posts/', function(req, res) {
   res.json({message:'chenggong'})
 })
 
+var routes = require('./routes');
+
+routes(app);
 
 
 app.listen(3000, function() {
